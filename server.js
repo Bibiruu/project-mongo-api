@@ -44,13 +44,13 @@ const Company = mongoose.model("Company", {
   Salary_Upper_Limit: Number,
 });
 
-/*const Title = mongoose.model("Title", {
+const Title = mongoose.model("Title", {
   Title: String,
   Location: {
     type: mongoose.Schema.Types.String,
     ref: "Location",
   },
-});*/
+});
 
 if (process.env.MONGO_URL) {
   const seedDatabase = async () => {
