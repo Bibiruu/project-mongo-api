@@ -27,96 +27,123 @@ app.get("/", (req, res) => {
     Routes: [
       {
         "/blockchainjobs": "Displaying the whole available data",
-        "/title": "All work Titles",
-        "/title/:id": "Paste your title id here ex. 6383ed726dc4c30af4e21c67 ",
         "/company": "Company option",
-        "/company/:id":
-          "Company option with id input ex. 63c6df59879d2963951c8f1d ",
+        "/company/:id": "Company option with id",
+        "/company?location=bangalore&easyapply=true":
+          "Replace the location of your choice from database and easyapply to either: true or false",
       },
     ],
   });
 });
 
 const Company = mongoose.model("Company", {
+  Title: String,
   Company: String,
+  Location: String,
   Easy_Apply: Boolean,
   Salary_Lower_Limit: Number,
   Salary_Upper_Limit: Number,
 });
 
-const Title = mongoose.model("Title", {
-  Title: String,
-  Location: {
-    type: mongoose.Schema.Types.String,
-    ref: "Location",
-  },
-});
-
-if (process.env.MONGO_URL) {
+//database seeding and layering for safety in IF statement
+if (process.env.RESET_DB) {
   const seedDatabase = async () => {
-    await Company.deleteMany({});
-    await Title.deleteMany();
-
+    await Company.deleteMany();
     blockchainjobs.forEach((data) => {
       new Company(data).save();
-      new Title(data).save();
     });
     seedDatabase();
   };
+}
 
-    app.get("/blockchainjobs", async (req, res) => {
-      res.json(blockchainjobs); // sending the whole data set which you imported
+app.get("/blockchainjobs", async (req, res) => {
+  res.json(blockchainjobs); // sending the whole data set which you imported
+});
+
+app.get("/company", async (req, res) => {
+  try {
+    const company = await Company.find({}); // will find all in your database
+    res.status(200).json({
+      success: true,
+      data: company,
+      message: "Success",
     });
-
-    app.get("/title", async (req, res) => {
-      const title = await Title.find();
-      res.json(title);
-      console.log("Title", title);
-    });
-
-    app.get("/title/:title", async (req, res) => {
-      const titleId = await Title.findById(req.params.title);
-
-      if (!titleId) {
-        res.status(404).json({ error: "Error in id." });
-      } else {
-        res.status(200).json(titleId);
-      }
-    });
-
-    app.get("/company", async (req, res) => {
-      const company = await Company.find(); // will find all in your database
-      res.json(company);
-    });
-
-    app.get("/company/:id", async (req, res) => {
-      const id = await Company.findById(req.params.id);
-
-      if (id) {
-        res.status(200).json(id);
-      } else {
-        res.status(404).json({ error: "Error in id." });
-      }
-    });
-
-    app.get("/company/:id/title", async (req, res) => {
-      const companies = await Company.findById(req.params.id).populate(
-        "Location"
-      );
-
-      if (companies) {
-        const title = await Title.find({
-          companies: mongoose.Types.ObjectId(companies.id),
-        });
-        res.status(200).json(title);
-      } else {
-        res.status(404).json({ error: "Error in author name." });
-      }
-    });
-
-    // Start the server
-    app.listen(port, () => {
-      console.log(`Server running on http://localhost:${port}`);
+  } catch (error) {
+    res.status(404).json({
+      success: false,
+      data: null,
+      error: error,
+      message: "Page not found",
     });
   }
+});
+//https://project-mongo-api-jzokz6hyzq-lz.a.run.app/company/63c8811ec2f48a68801cb941
+app.get("/company/:id", async (req, res) => {
+  try {
+    const id = await Company.findById(req.params.id); //mongodb id: _id
+    if (id) {
+      res.status(200).json({
+        success: true,
+        data: id,
+        message: "Success",
+      });
+    }
+  } catch (error) {
+    res.status(404).json({
+      success: false,
+      data: null,
+      error: error,
+      message: "Page not found",
+    });
+  }
+});
 
+//https://project-mongo-api-jzokz6hyzq-lz.a.run.app/company?location=remote&easyapply=false
+app.get("/company/", async (req, res) => {
+  const { location, easyapply } = req.query;
+  const response = {
+    success: true,
+    data: {},
+  };
+
+  const locationQuery = location ? location : /.*/gm;
+  const easypplyQuery = easyapply ? easyapply : /.*/gm;
+
+  try {
+    response.data = await Company.find({
+      location: locationQuery,
+      easyapply: easypplyQuery,
+    });
+    res.status(200).json({
+      success: true,
+      data: response.data,
+      message: "Connection successful",
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      data: null,
+      error: error,
+      message: "Page not found",
+    });
+  }
+});
+
+// Start the server
+app.listen(port, () => {
+  console.log(`Server running on http://localhost:${port}`);
+});
+
+/*Additional adding when time:
+app.get("/company/:company", async (req, res) => {
+  const companyId = await Company.findById(req.params.company);
+  const jobTitles = blockchainjobs.filter(
+    (item) => item.Company.toLowerCase() === companyId.toLowerCase()
+  );
+  console.log({jobTitles})
+  if (!jobTitles) {
+    res.status(404).json({ error: "Error in id." });
+  } else {
+    res.status(200).json(companyId);
+  }
+});*/
