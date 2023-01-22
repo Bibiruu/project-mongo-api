@@ -1,13 +1,35 @@
 # Project Mongo API
 
-Replace this readme with your own information about your project.
+Backend focused project.
+How to use MongoDB to store data, and how to query that data from your API.
 
-Start by briefly describing the assignment in a sentence or two. Keep it short and to the point.
+#The projects has
 
-## The problem
+ one endpoint to return a collection of results (array of elements).
+ one endpoint to return a single result (single element).
+ API is making use of Mongoose models to model the data and use these models to fetch data from the database.
+ API's are RESTful.
 
-Describe how you approached to problem, and what tools and techniques you used to solve it. How did you plan? What technologies did you use? If you had more time, what would be next?
+Stack:
+Express.js , Node.js, MongoDB, RESTfull API's
+
+# What I have learned
+
+✓ What MongoDB is
+
+✓ How to model data in Mongo using Mongoose
+
+✓ How to store secret information such as database passwords
+
+✓ How to return useful error messages from your API endpoints
+
+✓ How to fetch items from a Mongo database using Mongoose
+
+✓ How to seed large amounts of data to a database
 
 ## View it live
 
-Every project should be deployed somewhere. Be sure to include the link to the deployed project so that the viewer can click around and see what it's all about.
+The front page will have guided end points for you to try this project out. Enjoy :)
+
+https://project-mongo-api-jzokz6hyzq-lz.a.run.app
+
