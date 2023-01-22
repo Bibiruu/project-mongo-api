@@ -20,7 +20,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Start defining your routes here
+//Example route uses here
 app.get("/", (req, res) => {
   res.send({
     responseMassage: "Choice routes:",
